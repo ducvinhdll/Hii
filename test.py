@@ -3,38 +3,49 @@ import requests
 import time
 import threading
 
-# Thay thế bằng TOKEN của bạn
+# Thay thế bằng token của bạn
 BOT_TOKEN = '7110772979:AAF0l8WM50GnTTC9GPO74_oU0-DH_Y7brTs'
-
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# Biến toàn cục để lưu trữ tin nhắn
-messages = []
+# Biến lưu trữ tin nhắn tự động
+auto_messages = {}
 
-# Xử lý lệnh /start
-@bot.message_handler(commands=['lenhadmin'])
+# Hàm xử lý lệnh /start
+@bot.message_handler(commands=['startadmin'])
 def send_welcome(message):
-    bot.reply_to(message, "Chào mừng bạn đến với bot tự động gửi tin nhắn! Sử dụng lệnh /setmess để thêm tin nhắn.")
+  bot.reply_to(message, "Xin chào! Tôi là bot tự động gửi tin nhắn. Sử dụng lệnh /setmess để thêm tin nhắn gửi tự động.")
 
-
-# Xử lý lệnh /setmess
+# Hàm xử lý lệnh /setmess
 @bot.message_handler(commands=['setmess'])
-def set_message(message):
-    text = message.text.replace('/setmess ', '')
-    messages.append(text)
-    bot.reply_to(message, f"Tin nhắn '{text}' đã được thêm vào danh sách.")
+def set_auto_message(message):
+  try:
+    # Lấy nội dung tin nhắn từ người dùng
+    new_message = message.text.split(' ', 1)[1]
+    
+    # Lưu trữ tin nhắn vào biến auto_messages
+    auto_messages[message.chat.id] = new_message
+    
+    bot.reply_to(message, f"Tin nhắn tự động đã được cập nhật thành: {new_message}")
 
-# Hàm gửi tin nhắn tự động
-def send_messages_automatically():
-    while True:
-        for message in messages:
-            for chat_id in bot.get_updates()[-1].message.chat.id:
-                bot.send_message(chat_id, message)
-        time.sleep(60)  # Gửi tin nhắn mỗi 60 giây
+  except IndexError:
+    bot.reply_to(message, "Vui lòng cung cấp tin nhắn sau lệnh /setmess, ví dụ: /setmess Xin chào!")
 
-# Tạo luồng riêng biệt cho việc gửi tin nhắn tự động
-thread = threading.Thread(target=send_messages_automatically)
-thread.start()
+# Hàm gửi tin nhắn tự động 
+def send_auto_messages():
+  while True:
+    for chat_id, message in auto_messages.items():
+      try:
+        bot.send_message(chat_id, message)
+      except Exception as e:
+        print(f"Lỗi khi gửi tin nhắn: {e}")
 
-# Bắt đầu bot
-bot.infinity_polling(timeout=60, long_polling_timeout = 4)
+    # Đợi 1 giờ trước khi gửi lại
+    time.sleep(60)
+
+# Khởi tạo luồng để chạy hàm send_auto_messages
+message_thread = threading.Thread(target=send_auto_messages)
+message_thread.daemon = True
+message_thread.start()
+
+# Khởi chạy bot
+bot.polling()
