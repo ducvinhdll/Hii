@@ -35,6 +35,10 @@ warnings = {}
 # Khởi tạo một dictionary để lưu trữ các từ ngữ và câu trả lời tương ứng
 keywords = {}
 
+
+# Thời gian bot bắt đầu hoạt động
+start_time = time.time()
+
 # Khai báo API key của OpenAI
 # ID chat Telegram bạn muốn gửi tin nhắn
 
@@ -87,7 +91,7 @@ def diggory(message):
     diggory_chat = f'''
 ┌──────────⭓VIP ᴍʀ 𝐕𝐋𝐒ㅤ🧿
 │» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🕳️ /gtid : Get Id,Úser,Fullname, Avatar Tele\n│»📝 /random_face : Randomly generate sharp faces.\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»⏲️ /tt : download tiktok videos without logo.\n│»🛡️ /ytb :download Youtube videos.\n│»🖥️ /tt_fb : 检查脸书信息.\n│»💡 /askgpt : GPT AI Bot.\n│»🌐 Telegram : @Lousivinh
+│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🕳️ /gtid : Get Id,Úser,Fullname, Avatar Tele\n│»📝 /random_face : Randomly generate sharp faces.\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»⏲️ /tt : download tiktok videos without logo.\n│»🛡️ /ytb :download Youtube videos.\n│»🖥️ /tt_fb : 检查脸书信息.\n│»💡 /askgpt : GPT AI Bot.\n│»🤖 /time: check time\n│»🌐 Telegram : @Lousivinh
 └─────────────────────
     '''
     sent_message = bot.send_message(message.chat.id, diggory_chat)
@@ -273,16 +277,21 @@ def luuvideo_tiktok(message):
    bot.reply_to(message, f'Oh my God, Because the video is too heavy, you must download it using a link: {linkz}')
    bot.delete_message(chat_id=message.chat.id, message_id=sent_message.message_id)  
 
+
 @bot.message_handler(commands=['time'])
-def show_uptime(message):
-    current_time = time.time()
-    uptime = current_time - start_time
+def handle_time(message):
+    # Tính toán thời gian bot đã hoạt động
+    uptime = time.time() - start_time
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
     seconds = int(uptime % 60)
-    uptime_str = f'{hours} Giờ, {minutes} Phút, {seconds} Giây'
-    bot.reply_to(message, f'Bot Đã hoạt Động Được: {uptime_str}')
 
+    # Lấy thông tin sử dụng CPU
+    cpu_percent = psutil.cpu_percent()
+
+    # Gửi phản hồi cho người dùng
+    bot.reply_to(message, f"Bot đã hoạt động được: {hours} giờ {minutes} phút {seconds} giây\nSử dụng CPU: {cpu_percent}%")
+    
 @bot.message_handler(commands=['tt_fb'])
 def get_facebook_info(message):
     chat_id = message.chat.id
