@@ -91,7 +91,7 @@ def diggory(message):
     diggory_chat = f'''
 ┌──────────⭓VIP ᴍʀ 𝐕𝐋𝐒ㅤ🧿
 │» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🕳️ /gtid : Get Id,Úser,Fullname, Avatar Tele\n│»📝 /random_face : Randomly generate sharp faces.\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»⏲️ /tt : download tiktok videos without logo.\n│»🛡️ /ytb :download Youtube videos.\n│»🖥️ /tt_fb : 检查脸书信息.\n│»💡 /askgpt : GPT AI Bot.\n│»🤖 /time: check time\n│»🌐 Telegram : @Lousivinh
+│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\│»📝 /random_face : Randomly generate sharp faces.\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»⏲️ /tt : download tiktok videos without logo.\n│»🛡️ /ytb :download Youtube videos.\n│»🖥️ /tt_fb : 检查脸书信息.\n│»💡 /askgpt : GPT AI Bot.\n│»🤖 /time: check time\n│»🌐 Telegram : @Lousivinh
 └─────────────────────
     '''
     sent_message = bot.send_message(message.chat.id, diggory_chat)
@@ -99,7 +99,51 @@ def diggory(message):
     time.sleep(50)
 
 
+@bot.message_handler(commands=['system'])
+def speed_test(message):
+    if message.from_user.id not in ADMIN_USER_IDS:
+        bot.reply_to(message, "Bạn không có quyền.")
+        return
+    
+    loading_message = bot.reply_to(message, "🔎")
 
+    current_time = time.time()
+    uptime_seconds = int(current_time - start_time)
+    hours, remainder = divmod(uptime_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    uptime_formatted = f"{hours}h {minutes}m {seconds}s"
+    
+    st = speedtest.Speedtest()
+    st.download()  
+    st.upload()   
+    ping = st.results.ping
+    download_speed = st.results.download / 1024 / 1024 
+    upload_speed = st.results.upload / 1024 / 1024     
+    
+    cpu_usage = psutil.cpu_percent(interval=1)
+    memory_usage = psutil.virtual_memory().percent
+    
+    ip_info = requests.get('https://ipinfo.io/json').json()
+    ip_country = ip_info.get('country', 'Unknown')
+    
+    api_url = 'https://thanhtien.vpndns.net/api.php'
+    start_time_api = time.time()
+    response = requests.get(api_url)
+    api_ping_time = (time.time() - start_time_api) * 1000  # Convert to milliseconds
+    
+    result_message = (f"┌─────⭓ System | Mr.CS\n"
+                      f"│» ⏱️ Uptime: {uptime_formatted}\n"
+                      f"│» 🌐 Ping: {ping} ms\n"
+                      f"│» ⤵️ Download: {download_speed:.2f} Mbps\n"
+                      f"│» ⤴️ Upload: {upload_speed:.2f} Mbps\n"
+                      f"│» 🖥️ CPU: {cpu_usage}%\n"
+                      f"│» 🧠 Memory: {memory_usage}%\n"
+                      f"│» 🛜 Country: {ip_country}\n"
+                      f"│» 📡 API Ping: {api_ping_time:.2f} ms\n"
+                      f"└────────────────────────")
+    
+    bot.reply_to(message, result_message)
+    bot.delete_message(message.chat.id, loading_message.message_id)
 
 
 
@@ -209,17 +253,6 @@ def diggory(message):
 
         
 
-
-@bot.message_handler(commands=['Vi'])
-def send_welcome(message):
-    bot.reply_to(message, "Chào bạn! Hãy gửi một tin nhắn để tôi dịch nó sang tiếng Việt\n Ví dụ : /vn + Tiếng cần dịch.")
-
-@bot.message_handler(commands=['vn'])
-def translate_message(message):
-    text = message.text
-    translated_text = translator.translate(text, dest='vi').text
-    bot.reply_to(message, f"-> {translated_text}")
-    bot.reply_to(message, 'Language translation completed✅')
 
 
 @bot.message_handler(commands=['random_face'])
