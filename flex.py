@@ -1,29 +1,21 @@
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+import telebot
+import random
 
-def start(update: Update, context: CallbackContext) -> None:
-    user = update.message.from_user
-    update.message.reply_text(f"│»Hi {user.first_name}\n│»You: {user.id}.\n»Welcome to Vinh Louis's new event.\n│»Please send me the /give command and the number")
+# Thay đổi token của bot telegram của bạn ở đây
+TOKEN = '6273372932:AAGHzLRKucfRcd4m4rUPmZkKqtFrVWD5RxE''
+bot = telebot.TeleBot(TOKEN)
 
-def give(update: Update, context: CallbackContext) -> None:
-    user = update.message.from_user
-    command = update.message.text.split()
-    if len(command) != 2 or not command[1].isdigit() or int(command[1]) < 1 or int(command[1]) > 100:
-        update.message.reply_text("Vui lòng nhập số 1 đến 100 ")
-    else:
-        update.message.reply_text("Thank you for participating, please wait for notification from the administrator")
-        admin_message = f"Username: {user.username}, Fullname: {user.full_name}, ID: {user.id}, Number: {command[1]}"
-        # Send admin_message to administrator
+@bot.message_handler(commands=['start'])
+def handle_start(message):
+    username = message.from_user.username
+    bot.reply_to(message, f'Xin chào {username}!\nHãy sử sụng lệnh /give + số ngẫu nhiên của bạn từ 1-100.»Bot By ᴍʀ 𝐕𝐋𝐒ㅤ🧿')
 
-def main() -> None:
-    updater = Updater("6273372932:AAGHzLRKucfRcd4m4rUPmZkKqtFrVWD5RxE")
-    dispatcher = updater.dispatcher
+@bot.message_handler(commands=['give'])
+def handle_give(message):
+    number = random.randint(1, 100)
+    username = message.from_user.username
+    fullname = message.from_user.first_name + ' ' + message.from_user.last_name
+    bot.reply_to(message, 'Cảm ơn bạn đã tham gia!')
+    bot.send_message(6895557861, f'Username: {username}\nFullname: {fullname}\nNumber chosen: {number}')
 
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.command & Filters.regex(r'^/give'), give))
-
-    updater.start_polling()
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
+bot.infinity_polling(timeout=60, long_polling_timeout = 1)
