@@ -22,7 +22,7 @@ from telebot import types
 import google.generativeai as genai
 urllib3.disable_warnings()
 
-bot_token = '6554957940:AAH-bbTunSqVLxpVmVxuFVRnCnqRhax9fhY'# nhập token bot
+bot_token = '7110772979:AAF0l8WM50GnTTC9GPO74_oU0-DH_Y7brTs'# nhập token bot
 
 bot = telebot.TeleBot(bot_token)
 
