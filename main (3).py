@@ -9,7 +9,6 @@ import random
 import os 
 from datetime import datetime
 from pyotp import TOTP
-import openai
 import string
 import subprocess
 import sqlite3
