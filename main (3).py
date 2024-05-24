@@ -101,12 +101,6 @@ def diggory(message):
 
 @bot.message_handler(commands=['cpu'])
 def check_cpu(message):
-    user_id = message.from_user.id
-    if user_id not in ADMIN_IDS:
-        bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này.')
-        return
-
-    # Tiếp tục xử lý lệnh cpu ở đây
     cpu_usage = psutil.cpu_percent(interval=1)
     memory_usage = psutil.virtual_memory().percent
 
@@ -157,7 +151,7 @@ def unban_user(message):
 def gpt(message):
   
   chat_id = message.chat.id
-  genai.configure(api_key="AIzaSyDrABsaV-gGS7pmDcBBySO8uCcc2NMIzWE")
+  genai.configure(api_key="AIzaSyDj9wlRV9g_F9JYEwGROVG0MOibuYPyMPE")
 
   generation_config = {
     "temperature": 0.9,
