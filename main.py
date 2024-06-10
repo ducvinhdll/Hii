@@ -88,7 +88,7 @@ def diggory(message):
     diggory_chat = f'''
 ┌──────────⭓VIP @Louisvinh
 │» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\│»│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»💡 /askgpt : GPT AI Bot.\n│»🤖 /cpu : check gpu,cpu...\n│»🌐 Telegram : @Lousivinh
+│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»💡 /askgpt : GPT AI Bot.\n│»🤖 /cpu : check gpu,cpu...\n│»/time: check time\n│»🌐 Telegram : @Lousivinh
 └─────────────────────
     '''
     sent_message = bot.send_message(message.chat.id, diggory_chat)
@@ -125,11 +125,11 @@ def show_uptime(message):
 bot.reply_to(message, f'Bot Đã Hoạt Động Được: {uptime_str}')
 
 
-@bot.message_handler(commands=['askgpt'])
+@bot.message_handler(commands=['ask'])
 def gpt(message):
   
   chat_id = message.chat.id
-  genai.configure(api_key="AIzaSyDrABsaV-gGS7pmDcBBySO8uCcc2NMIzWE")
+  genai.configure(api_key="AIzaSyBeOeuX-CxrJw0bohXfkMi9ogQurWDp66c")
 
   generation_config = {
     "temperature": 0.9,
