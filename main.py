@@ -36,6 +36,7 @@ start_time = time.time()
 # Biến toàn cục để lưu trữ tin nhắn sẽ được gửi tự động
 auto_message = ''
 
+filters = {}  # Lưu trữ bộ lọc
 
 allowed_users = []
 processes = []
@@ -106,7 +107,7 @@ def show_uptime(message):
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
     seconds = int(uptime % 60)
-    uptime_str = f'{hours} giờ, {minutes} phút, {seconds} giây'
+    uptime_str = f'```{hours} giờ, {minutes} phút, {seconds} giây```'
     
     bot.reply_to(message, f'Bot Đã Hoạt Động Được: {uptime_str}')
 
@@ -204,29 +205,40 @@ def luuvideo_tiktok(message):
   
 
 
-# Xử lý lệnh /setmess
-def send_message(chat_id, message):
-    '''Hàm này gửi tin nhắn đến chat_id sau một khoảng thời gian đã định.'''
-    bot.send_message(chat_id, message)
+def is_user_admin(chat_id, user_id):
+    """Kiểm tra xem người dùng có phải là admin của chat (nhóm) không."""
+    admin_list = bot.get_chat_administrators(chat_id)
+    for admin in admin_list:
+        if admin.user.id == user_id:
+            return True
+    return False
 
-@bot.message_handler(commands=['setmess'])
-def handle_command(message):
-    command_parameters = message.text.split(maxsplit=1)
-    if len(command_parameters) < 2:
-        bot.reply_to(message, "Vui lòng nhập nội dung tin nhắn bạn muốn lên lịch.")
+@bot.message_handler(commands=['filter'])
+def add_filter(message):
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+    
+    # Chỉ cho phép admin thêm bộ lọc
+    if not is_user_admin(chat_id, user_id):
+        bot.reply_to(message, "Xin lỗi, bạn cần phải là admin để sử dụng lệnh này.")
         return
     
-    # Phần còn lại của tin nhắn là tin nhắn được lên lịch
-    scheduled_message = command_parameters[1]
+    parts = message.text.split(maxsplit=1)
+    if len(parts) != 2:
+        bot.reply_to(message, "Bạn cần chỉ định tên bộ lọc. Ví dụ: /filter vinh")
+        return
     
-    chat_id = message.chat.id
-    
-    # Thiết lập bộ đếm thời gian để gửi tin nhắn sau 15 phút
-    Timer(15 * 60, send_message, args=(chat_id, scheduled_message)).start()
-    
-    # Phản hồi ngay lập tức sau khi lệnh được thiết lập
-    bot.reply_to(message, "Tin nhắn của bạn sẽ được gửi sau 15 phút.")
-    
+    filter_name = parts[1].strip().lower()  # Để tránh phân biệt chữ hoa chữ thường
+    filters[filter_name] = message.reply_to_message.text if message.reply_to_message else "Bộ lọc này không có nội dung mặc định."
+    bot.reply_to(message, f"Đã thêm bộ lọc cho từ khóa: '{filter_name}'")
+
+@bot.message_handler(func=lambda message: True)
+def filter_message(message):
+    for filter_name in filters:
+        if filter_name in message.text.lower():
+            bot.reply_to(message, filters[filter_name])
+            break
+   
     
 
 @bot.message_handler(func=lambda message: message.text.startswith('djtme'))
