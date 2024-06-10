@@ -213,6 +213,27 @@ def is_user_admin(chat_id, user_id):
             return True
     return False
 
+
+@bot.message_handler(commands=['filters'])
+def list_filters(message):
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+    
+    # Chỉ cho phép admin xem bộ lọc
+    if not is_user_admin(chat_id, user_id):
+        bot.reply_to(message, "Xin lỗi, chỉ có admin mới có thể xem danh sách bộ lọc.")
+        return
+    
+    if filters:
+        filter_list = ', '.join(filters.keys())
+        bot.reply_to(message, f"Danh sách bộ lọc hiện tại: {filter_list}")
+    else:
+        bot.reply_to(message, "Không có bộ lọc nào được cài đặt.")
+
+# Các hàm xử lý khác đã được thêm vào từ các ví dụ trước...
+
+
+
 @bot.message_handler(commands=['filter'])
 def add_filter(message):
     chat_id = message.chat.id
@@ -231,6 +252,31 @@ def add_filter(message):
     filter_name = parts[1].strip().lower()  # Để tránh phân biệt chữ hoa chữ thường
     filters[filter_name] = message.reply_to_message.text if message.reply_to_message else "Bộ lọc này không có nội dung mặc định."
     bot.reply_to(message, f"Đã thêm bộ lọc cho từ khóa: '{filter_name}'")
+
+
+@bot.message_handler(commands=['stop'])
+def remove_filter(message):
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+    
+    # Chỉ cho phép admin xóa bộ lọc
+    if not is_user_admin(chat_id, user_id):
+        bot.reply_to(message, "Xin lỗi, chỉ có admin mới có thể thực hiện hành động này.")
+        return
+    
+    parts = message.text.split(maxsplit=1)
+    if len(parts) != 2:
+        bot.reply_to(message, "Bạn cần chỉ định tên bộ lọc cần xóa. Ví dụ: /stop <từ khóa>")
+        return
+    
+    filter_name = parts[1].strip().lower()
+    
+    if filter_name in filters:
+        del filters[filter_name]
+        bot.reply_to(message, f"Bộ lọc cho từ khóa '{filter_name}' đã được xóa.")
+    else:
+        bot.reply_to(message, f"Không tìm thấy bộ lọc cho từ khóa: '{filter_name}'")
+        
 
 @bot.message_handler(func=lambda message: True)
 def filter_message(message):
