@@ -180,7 +180,7 @@ def show_user_id(message):
 @bot.message_handler(commands=['tiktok'])
 def luuvideo_tiktok(message):
   if len(message.text.split()) == 1:
-    sent_message = bot.reply_to(message, 'Please enter the tiktok video.\n For example: /tiktok https://tiktok.com/mau)
+    sent_message = bot.reply_to(message, 'Please enter the tiktok video.\n For example: /tiktok https://tiktok.com/mau')
     return
   linktt = message.text.split()[1]
   data = f'url={linktt}'
