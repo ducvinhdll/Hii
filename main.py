@@ -77,9 +77,9 @@ def save_user_to_database(connection, user_id, expiration_time):
     ''', (user_id, expiration_time.strftime('%Y-%m-%d %H:%M:%S')))
     connection.commit()
 
-# ID chat 
-
-# Tin nhắn bạn muốn gửi
+def TimeStamp():
+    now = str(datetime.date.today())
+    return now
 
 
 @bot.message_handler(commands=['start'])
@@ -107,14 +107,7 @@ def check_cpu(message):
 
 @bot.message_handler(commands=['time'])
 def show_uptime(message):
-
-	loading_message = bot.reply_to(message, "🔎")
-
-    current_time = time.time()
-    uptime_seconds = int(current_time - start_time)
-    hours, remainder = divmod(uptime_seconds, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    uptime_formatted = f"{hours}h {minutes}m {seconds}s"
+	
     current_time = time.time()
     uptime = current_time - start_time
     hours = int(uptime // 3600)
