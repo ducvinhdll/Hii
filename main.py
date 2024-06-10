@@ -9,11 +9,9 @@ import random
 import os 
 from datetime import datetime
 from pyotp import TOTP
-import openai
 import string
 import subprocess
 import sqlite3
-from pytube import YouTube
 from gtts import gTTS
 import urllib3
 import json
@@ -46,6 +44,10 @@ proxy_update_count = 0
 last_proxy_update_time = time.time()
 key_dict = {}
 
+print("Bot Đã Được Khởi Chạy")
+print("Ower : @Louisvinh")
+print("LouisModTeam  - 𝗕𝗼𝘁⚡️")
+
 connection = sqlite3.connect('user_data.db')
 cursor = connection.cursor()
 
@@ -77,9 +79,7 @@ def save_user_to_database(connection, user_id, expiration_time):
     ''', (user_id, expiration_time.strftime('%Y-%m-%d %H:%M:%S')))
     connection.commit()
 
-def TimeStamp():
-    now = str(datetime.date.today())
-    return now
+
 
 
 @bot.message_handler(commands=['start'])
@@ -88,7 +88,7 @@ def diggory(message):
     diggory_chat = f'''
 ┌──────────⭓VIP @Louisvinh
 │» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»💡 /askgpt : GPT AI Bot.\n│»🤖 /cpu : check gpu,cpu...\n│»/time: check time\n│»🌐 Telegram : @Lousivinh
+│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
 └─────────────────────
     '''
     sent_message = bot.send_message(message.chat.id, diggory_chat)
@@ -96,13 +96,6 @@ def diggory(message):
     time.sleep(50)
 
 
-@bot.message_handler(commands=['cpu'])
-def check_cpu(message):
-    # Tiếp tục xử lý lệnh cpu ở đây
-    cpu_usage = psutil.cpu_percent(interval=1)
-    memory_usage = psutil.virtual_memory().percent
-
-    bot.reply_to(message, f'🖥 CPU Usage: {cpu_usage}%\n💾 Memory Usage: {memory_usage}%')
 
 
 @bot.message_handler(commands=['time'])
@@ -161,7 +154,7 @@ def gpt(message):
   end_time = time.time()
   response_time = end_time - start_time
   bot.reply_to(message, "So tiring💫")
-  bot.reply_to(message, f"●━━━━━━━🌐━━━━━━━━●\n`{response.text}`\n●━━━━━━━🌐━━━━━━━━●\n status time:{response_time}\n●━━━━━━━🌐━━━━━━━━●", parse_mode="Markdown")
+  bot.reply_to(message, f"●━━━━━━━━━━━━━━━●\n`{response.text}`\n●━━━━━━━━━━━━━━━●\n status time:{response_time}\n●━━━━━━━━━━━━━━━●", parse_mode="Markdown")
 
 @bot.message_handler(commands=['admin'])
 def diggory(message):
@@ -179,7 +172,11 @@ def diggory(message):
     time.sleep(20)
 
 #Tỉa soud
-
+@bot.message_handler(commands=['id'])
+def show_user_id(message):
+    user_id = message.from_user.id
+    bot.reply_to(message, f"📄 • User ID : {user_id}")
+    
 
 # Xử lý lệnh /setmess
 @bot.message_handler(commands=['setmess'])
