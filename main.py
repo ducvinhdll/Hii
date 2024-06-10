@@ -88,7 +88,7 @@ def diggory(message):
     diggory_chat = f'''
 ┌──────────⭓VIP @Louisvinh
 │» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
+│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
 └─────────────────────
     '''
     sent_message = bot.send_message(message.chat.id, diggory_chat)
@@ -108,7 +108,7 @@ def show_uptime(message):
     seconds = int(uptime % 60)
     uptime_str = f'{hours} giờ, {minutes} phút, {seconds} giây'
     
-bot.reply_to(message, f'Bot Đã Hoạt Động Được: {uptime_str}')
+    bot.reply_to(message, f'Bot Đã Hoạt Động Được: {uptime_str}')
 
 
 @bot.message_handler(commands=['ask'])
@@ -176,37 +176,58 @@ def diggory(message):
 def show_user_id(message):
     user_id = message.from_user.id
     bot.reply_to(message, f"📄 • User ID : {user_id}")
-    
+
+@bot.message_handler(commands=['tiktok'])
+def luuvideo_tiktok(message):
+  if len(message.text.split()) == 1:
+    sent_message = bot.reply_to(message, 'Please enter the tiktok video.\n For example: /tiktok https://tiktok.com/mau)
+    return
+  linktt = message.text.split()[1]
+  data = f'url={linktt}'
+  head = {
+    "Host":"www.tikwm.com",
+    "accept":"application/json, text/javascript, */*; q=0.01",
+    "content-type":"application/x-www-form-urlencoded; charset=UTF-8",
+    "user-agent":"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+  }
+  response = requests.post("https://www.tikwm.com/api/",data=data,headers=head).json()
+  linkz = response['data']['play']
+  rq = response['data']
+  tieude = rq['title']
+  view = rq['play_count']
+  sent_message = bot.reply_to(message, f'Please wait a moment..\n»Title: {tieude}\n»Video views: {view}')
+  try:
+   bot.send_video(message.chat.id, video=linkz, caption=f'Video downloaded successfully, thank you for using me\n»Title: {tieude}\n»Video View: {view}\n»Creator: t.me/Louisvinh', reply_to_message_id=message.message_id, supports_streaming=True)
+  except Exception as e:
+   bot.reply_to(message, f'The Video Is Too Heavy So You Can Download It Yourself Using The Link:\n{linkz}')
+  bot.delete_message(chat_id=message.chat.id, message_id=sent_message.message_id)  
+  
+
 
 # Xử lý lệnh /setmess
+def send_message(chat_id, message):
+    '''Hàm này gửi tin nhắn đến chat_id sau một khoảng thời gian đã định.'''
+    bot.send_message(chat_id, message)
+
 @bot.message_handler(commands=['setmess'])
-def set_message(message):
-    global auto_message
-    auto_message = message.text.replace("/setmess ", "")
-    bot.reply_to(message, f"Tin nhắn tự động đã được đặt thành:\n{auto_message}")
-
-# Hàm gửi tin nhắn tự động sau mỗi 1 tiếng
-def send_auto_message():
-    while True:
-        # Kiểm tra xem đã có tin nhắn tự động hay chưa
-        if auto_message:
-            # Lấy ID của nhóm từ tin nhắn
-            chat_id = message.chat.id
-
-            # Gửi tin nhắn tự động đến nhóm
-            bot.send_message(chat_id, auto_message)
-
-        # Dừng 1 tiếng
-        time.sleep(3600)
-
-# Chạy hàm gửi tin nhắn tự động trong một luồng riêng biệt
-if __name__ == '__main__':
-    # Khởi tạo luồng cho hàm send_auto_message
-    import threading
-    message_thread = threading.Thread(target=send_auto_message)
-    message_thread.daemon = True
-    message_thread.start()
-
+def handle_command(message):
+    command_parameters = message.text.split(maxsplit=1)
+    if len(command_parameters) < 2:
+        bot.reply_to(message, "Vui lòng nhập nội dung tin nhắn bạn muốn lên lịch.")
+        return
+    
+    # Phần còn lại của tin nhắn là tin nhắn được lên lịch
+    scheduled_message = command_parameters[1]
+    
+    chat_id = message.chat.id
+    
+    # Thiết lập bộ đếm thời gian để gửi tin nhắn sau 15 phút
+    Timer(15 * 60, send_message, args=(chat_id, scheduled_message)).start()
+    
+    # Phản hồi ngay lập tức sau khi lệnh được thiết lập
+    bot.reply_to(message, "Tin nhắn của bạn sẽ được gửi sau 15 phút.")
+    
+    
 
 @bot.message_handler(func=lambda message: message.text.startswith('djtme'))
 def invalid_command(message):
