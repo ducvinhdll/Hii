@@ -9,6 +9,12 @@ import random
 import os 
 from datetime import datetime
 from pyotp import TOTP
+import psutil
+import hashlib
+import socket
+import zipfile
+import io
+import re
 import string
 import subprocess
 import sqlite3
@@ -206,7 +212,6 @@ def gpt(message):
   response = model.generate_content(prompt_parts)
   end_time = time.time()
   response_time = end_time - start_time
-  bot.reply_to(message, "So tiring💫")
   bot.reply_to(message, f"●━━━━━━━━━━━━━━━●\n`{response.text}`\n●━━━━━━━━━━━━━━━●\n status time:{response_time}\n●━━━━━━━━━━━━━━━●", parse_mode="Markdown")
 
 @bot.message_handler(commands=['admin'])
