@@ -107,9 +107,6 @@ def diggory(message):
 @bot.message_handler(commands=['spamsms'])
 def attack_command(message):
     user_id = message.from_user.id
-    if not is_bot_active:
-        bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
-        return
 
     if len(message.text.split()) < 2:
         bot.reply_to(message, 'Vui lòng nhập đúng cú pháp.\nVí dụ: /sms + [số điện thoại]')
