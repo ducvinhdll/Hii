@@ -95,7 +95,7 @@ def diggory(message):
     diggory_chat = f'''
 ┌──────────⭓VIP @Louisvinh
 │» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»☠️ /spamsms : Spam Số Điện Thoại\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
+│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
 └─────────────────────
     '''
     sent_message = bot.send_message(message.chat.id, diggory_chat)
@@ -104,54 +104,6 @@ def diggory(message):
 
 
 
-@bot.message_handler(commands=['spamsms'])
-def attack_command(message):
-    user_id = message.from_user.id
-
-    if len(message.text.split()) < 2:
-        bot.reply_to(message, 'Vui lòng nhập đúng cú pháp.\nVí dụ: /sms + [số điện thoại]')
-        return
-
-    username = message.from_user.username
-
-    args = message.text.split()
-    phone_number = args[1]
-
-    blocked_numbers = ['113', '114', '115', '198', '911', '038646434']
-    if phone_number in blocked_numbers:
-        bot.reply_to(message, 'Êii Hư Nha.')
-        return
-
-    if user_id in cooldown_dict and time.time() - cooldown_dict[user_id] < 120:
-        remaining_time = int(120 - (time.time() - cooldown_dict[user_id]))
-        bot.reply_to(message, f'Vui lòng đợi {remaining_time} giây trước khi tiếp tục sử dụng lệnh này.')
-        return
-    
-    cooldown_dict[user_id] = time.time()
-
-    username = message.from_user.username
-
-    bot.reply_to(message, f'@{username} Đang Tiến Hành Spam')
-
-    args = message.text.split()
-    phone_number = args[1]
-
-    # Gửi dữ liệu tới api
-
-    file_path = os.path.join(os.getcwd(), "sms1.py")    
-    file_path2 = os.path.join(os.getcwd(), "sms2.py")
-    file_path3 = os.path.join(os.getcwd(), "sms3.py")
-    file_path4 = os.path.join(os.getcwd(), "spamsms.py")
-    process = subprocess.Popen(["python", file_path, phone_number, "400"])    
-    process = subprocess.Popen(["python", file_path2, phone_number, "500"])
-    process = subprocess.Popen(["python", file_path3, phone_number, "300"])
-    process = subprocess.Popen(["python", file_path4, phone_number, "300"])
-    processes.append(process)
-
-    video_url = "https://files.catbox.moe/nxhmp1.mp4"  # Replace this with the actual video URL      
-    message_text =f'Successful Attack⚡\n╭─────────────⭓\n│»Attack by : @{username} \n│»Number of Attacks : {phone_number} \n╰─────────────⭓'
-    bot.send_video(message.chat.id, video_url, caption=message_text, parse_mode='html')            
-    
 
 
 @bot.message_handler(commands=['time'])
