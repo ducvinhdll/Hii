@@ -22,13 +22,13 @@ from telegram.ext import Updater, CommandHandler, MessageHandler,CallbackQueryHa
 import google.generativeai as genai
 import html
 
-bot_token = '6838265816:AAFlzFcxH4RATMtDKftDwE656x5kg2trMDQ'
+bot_token = '7212380435:AAESyeHsC-IIm-63cgL82V2W-rAcd2K-rfc'
 bot = telebot.TeleBot(bot_token)
 translator = Translator()
 
 allowed_users = []
 processes = []
-ADMIN_ID = '5789810284'
+ADMIN_ID = '6895557861'
 
 connection = sqlite3.connect('user_data.db')
 cursor = connection.cursor()
