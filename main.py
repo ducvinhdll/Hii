@@ -7,6 +7,7 @@ import subprocess
 import requests
 import random
 import os 
+import threading
 from datetime import datetime
 from pyotp import TOTP
 import psutil
@@ -101,7 +102,7 @@ def diggory(message):
     diggory_chat = f'''
 ┌──────────⭓VIP @Louisvinh
 │» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
+│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»👾 /spam : spam sms\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
 └─────────────────────
     '''
     sent_message = bot.send_message(message.chat.id, diggory_chat)
@@ -110,7 +111,37 @@ def diggory(message):
 
 
 
+@bot.message_handler(commands=['spam'])
+def spam(message):
+    user_id = message.from_user.id
+    if len(message.text.split()) == 1:
+        bot.reply_to(message, 'PLEASE ENTER THE PHONE NUMBER.')
+        return
+    if len(message.text.split()) == 2:
+        bot.reply_to(message, 'Please Enter Correct Format\n»For example: /spam 0987654321 500')
+        return
+    lap = message.text.split()[2]
+    if lap.isnumeric():
+      if not (int(lap) > 0 and int(lap) <= 100):
+        bot.reply_to(message,"Vui Lòng Spam Trong Khoảng 1 - 100 Thôi !!")
+        return
+    else:
+      bot.reply_to(message,"Sai Số Lần Spam !!!")
+      return
+    phone_number = message.text.split()[1]
+    if not re.search("^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$",phone_number):
+        bot.reply_to(message, 'SỐ ĐIỆN THOẠI KHÔNG HỢP LỆ !')
+        return
 
+    if phone_number in ["0365956335"]:
+        # Số điện thoại nằm trong danh sách cấm
+        bot.reply_to(message,"Spam cái đầu buồi tao huhu")
+        return
+    file_path = os.path.join(os.getcwd(), "sms.py")
+    process = subprocess.Popen(["python", file_path, phone_number, "100"])
+    processes.append(process)
+    bot.reply_to(message, f'➤ USER ID: [ {user_id} ]\n➤ Attack SĐT: [ {phone_number} ] Success ✅\n➤ Repeat  : {lap} ⏰\n➤ Day  : {TimeStamp()}\n')
+    
 
 
 
@@ -300,32 +331,5 @@ def filter_message(message):
             break
    
 
-def send_periodic_message():
-    while True:
-        now = time.time()
-        for entry in list(pending_messages):
-            chat_id, message, timestamp = entry
-            if now >= timestamp:
-                bot.send_message(chat_id, message)
-                pending_messages.remove(entry)
-        time.sleep(10)  # Thực hiện kiểm tra mỗi 10 giây
-        
 
-
-@bot.message_handler(commands=['addtext'])
-def queue_message(message):
-    chat_id = message.chat.id
-    bot.send_message(chat_id, "Vui lòng nhập nội dung bạn muốn gửi tự động sau 15 phút.")
-    bot.register_next_step_handler(message, schedule_message, chat_id)
-
-def schedule_message(message, chat_id):
-    content = message.text
-    timestamp = time.time() + 900  # Thêm 15 phút vào thời gian hiện tại
-    pending_messages.append((chat_id, content, timestamp))
-    bot.send_message(chat_id, "Tin nhắn của bạn đã được lên lịch để gửi sau 15 phút.")
-
-if __name__ == '__main__':
-    # Bắt đầu luồng để gửi tin nhắn định kỳ
-    threading.Thread(target=send_periodic_message).start()
-    # Bắt đầu bot
     bot.infinity_polling(timeout=60, long_polling_timeout = 1)
