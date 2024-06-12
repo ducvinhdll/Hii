@@ -197,8 +197,6 @@ def how_to(message):
 │» /check : /check + [link] check anti ddos
 │» /capcut : download video tiktok 
 │» /status.
-│» /stop: Stop all running tasks. (Only Administrators Can Use This Command).
-│» /restart: Restart the bot (Admin only).
 │» /admin: Display admin information.
 └─────────────────────
 '''
@@ -213,11 +211,9 @@ def how_to(message):
   how_to_text = '''
  Thông Tin Admin:
 ✧══════ ༺༻ •══════✧
-- LE DUC VINH // LY QUANG VINH // VU HAI LAM
+- LE DUC VINH // LY QUANG VINH // 
 🚀Thông Tin Liên Hệ ☎️:🚀
-- Owner Telegram: https://t.me/hadukiii
-- Ower helps : @kun_dzll
-- Facebook: https://facebook.com/ducvinhdll
+- Owner Telegram: https://t.me/Louisvinh
 ✧══════ ༺༻ •══════✧
 '''
   bot.reply_to(message, how_to_text)
@@ -268,7 +264,7 @@ def status(message):
   bot.reply_to(message, f'Số quy trình đang xử lý {process_count}.')
 
 
-@bot.message_handler(commands=['restart'])
+@bot.message_handler(commands=['khoidong'])
 def restart(message):
   user_id = message.from_user.id
   if user_id != ADMIN_ID:
@@ -281,7 +277,7 @@ def restart(message):
   os.execl(python, python, *sys.argv)
 
 
-@bot.message_handler(commands=['stop'])
+@bot.message_handler(commands=['dungbot'])
 def stop(message):
   user_id = message.from_user.id
   bot.reply_to(message, 'Đã dừng bot')
