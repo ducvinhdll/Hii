@@ -101,7 +101,7 @@ def diggory(message):
     diggory_chat = f'''
 ┌──────────⭓VIP @Louisvinh
 │» 🔔 Hello: @{username}
-│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n🍉 /sms : Spam SDT\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
+│»  🐸 𝐵𝑜𝑡 𝐵𝑦 顶级开发商│ ᴍʀ 𝐕𝐋𝐒\n│»🛌 /admin : 𝐼𝑛𝑓𝑜 𝐴𝑑𝑚𝑖𝑛.\n│»🥶 /tiktok : Download video tik\n│»💡 /ask : GPT AI Bot.\n│»🤖/time : check time\n│»🖥️/id : Scan Id\n│»🌐 Telegram : @Lousivinh
 └─────────────────────
     '''
     sent_message = bot.send_message(message.chat.id, diggory_chat)
@@ -109,67 +109,6 @@ def diggory(message):
     time.sleep(50)
 
 
-
-
-@bot.message_handler(commands=['sms'])
-def sms(message):
-    user_id = message.from_user.id
-    
-
-    if len(message.text.split()) != 3:
-        bot.reply_text(message.chat_id, "<b>Vui Lòng Nhập Đúng Định Dạng.</b> <i>Ex: /sms 0900000000 5</i>", parse_mode='html')
-        return
-
-    phone_number = message.text.split()[1]
-    spam_time = message.text.split()[2]
-
-    if not phone_number.isdigit() or len(phone_number) != 10:
-        bot.reply_text(message.chat_id, "Vui lòng nhập số điện thoại đúng định dạng 10 chữ số.")
-        return
-
-    if not spam_time.isdigit() or int(spam_time) > 49:
-        bot.reply_text(message.chat_id, "Vui lòng nhập số phút (nhỏ hơn 50) sau lệnh [/sms].\nVí dụ: `/sms 0900000000 5`\n")
-        return
-
-    if phone_number in ['113', '114', '0376349783', '0333079921', '0974707985', '0915215448', '+84397333616', '+84915215448', '+84974707985', '0978551717', '116', '911']:
-        # Số điện thoại nằm trong danh sách cấm
-        bot.reply_text(message.chat_id, "Số này nằm trong danh sách cấm. Vui lòng nhập số khác.")
-        return
-
-    current_time = time.time()
-
-    if phone_number in last_used_times:
-        last_used_time = last_used_times[phone_number]
-        if current_time - last_used_time < 300:
-            # Thông báo cho người dùng rằng số đang trong quá trình tấn công, cần chờ thời gian
-            remaining_time = int(300 - (current_time - last_used_time))
-            bot.reply_text(message.chat_id, f"Number {phone_number} Đang Trong Quá Trình Tấn Công. Vui Lòng Chờ {remaining_time} Giây Mới Tấn Công Được Lần Hai.")
-            return
-
-    user_mention = message.from_user.mention_html()
-    cpu_usage = psutil.cpu_percent()
-    memory_usage = psutil.virtual_memory().percent
-    disk_usage = psutil.disk_usage('/').percent
-    video_url = "https://files.catbox.moe/b75dvz.gif"
-    hi_text = f'''
-⚡️ 𝗬𝗼𝘂 𝗮𝘁𝘁𝗮𝗰𝗸 𝗵𝗮𝘀 𝗯𝗲𝗲𝗻 𝘀𝗲𝗻𝘁 ⚡️
-  <b>❘ 𝗔𝘁𝘁𝗮𝗰𝗸 𝗖𝗼𝗻𝗳𝗶𝗴𝘂𝗿𝗮𝘁𝗶𝗼𝗻:</b>
-   • 𝗔𝘁𝘁𝗮𝗰𝗸 𝗕𝘆: {user_mention}
-   • 𝗣𝗵𝗼𝗻𝗲 𝗡𝘂𝗺𝗯𝗲𝗿: {phone_number}
-   • 𝗧𝗶𝗺𝗲: {spam_time} 𝗠𝗶𝗻𝘂𝘁𝗲𝘀
-   • 𝗣𝗹𝗮𝗻:  𝗙𝗿𝗲𝗲
-  <b>❘ 𝗦𝘆𝘀𝘁𝗲𝗺 𝗶𝗻𝗳𝗼𝗿𝗺𝗮𝘁𝗶𝗼𝗻:</b>
-   • 𝗖𝗣𝗨 : {cpu_usage}%
-   • 𝗗𝗜𝗦𝗞 : {disk_usage}%
-   • 𝗠𝗘𝗠𝗢𝗥𝗬 : {memory_usage}%
-'''
-
-    bot.send_video(message.chat_id, video_url, caption=hi_text, parse_mode='html') 
-    last_used_times[phone_number] = current_time
-
-    file_path = os.path.join(os.getcwd(), "sms.py")
-    process = subprocess.Popen(["python", file_path, phone_number, "100"])
-    processes.append(process)
 
 
 
@@ -360,8 +299,33 @@ def filter_message(message):
             bot.reply_to(message, filters[filter_name])
             break
    
-    
+
+def send_periodic_message():
+    while True:
+        now = time.time()
+        for entry in list(pending_messages):
+            chat_id, message, timestamp = entry
+            if now >= timestamp:
+                bot.send_message(chat_id, message)
+                pending_messages.remove(entry)
+        time.sleep(10)  # Thực hiện kiểm tra mỗi 10 giây
+        
 
 
+@bot.message_handler(commands=['addtext'])
+def queue_message(message):
+    chat_id = message.chat.id
+    bot.send_message(chat_id, "Vui lòng nhập nội dung bạn muốn gửi tự động sau 15 phút.")
+    bot.register_next_step_handler(message, schedule_message, chat_id)
 
-bot.infinity_polling(timeout=60, long_polling_timeout = 2)
+def schedule_message(message, chat_id):
+    content = message.text
+    timestamp = time.time() + 900  # Thêm 15 phút vào thời gian hiện tại
+    pending_messages.append((chat_id, content, timestamp))
+    bot.send_message(chat_id, "Tin nhắn của bạn đã được lên lịch để gửi sau 15 phút.")
+
+if __name__ == '__main__':
+    # Bắt đầu luồng để gửi tin nhắn định kỳ
+    threading.Thread(target=send_periodic_message).start()
+    # Bắt đầu bot
+    bot.infinity_polling(timeout=60, long_polling_timeout = 1)
